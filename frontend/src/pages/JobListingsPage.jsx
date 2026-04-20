@@ -4,6 +4,8 @@ import api from "../api/client";
 
 const JobListingsPage = () => {
   const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [filters, setFilters] = useState({
     search: "",
     location: "",
@@ -12,8 +14,16 @@ const JobListingsPage = () => {
   });
 
   const fetchJobs = async () => {
-    const { data } = await api.get("/jobs", { params: filters });
-    setJobs(data);
+    setError("");
+    setLoading(true);
+    try {
+      const { data } = await api.get("/jobs", { params: filters });
+      setJobs(data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not load jobs right now.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -54,9 +64,12 @@ const JobListingsPage = () => {
         />
         <button className="btn">Search</button>
       </form>
+      {error && <p className="error">{error}</p>}
+      {loading && <p>Loading jobs...</p>}
 
       <div className="card-grid">
-        {jobs.map((job) => (
+        {!loading &&
+          jobs.map((job) => (
           <article className="card" key={job._id}>
             <h3>{job.title}</h3>
             <p>{job.company}</p>
@@ -67,8 +80,8 @@ const JobListingsPage = () => {
               View Details
             </Link>
           </article>
-        ))}
-        {!jobs.length && <p>No jobs found.</p>}
+          ))}
+        {!loading && !jobs.length && !error && <p>No jobs found.</p>}
       </div>
     </section>
   );

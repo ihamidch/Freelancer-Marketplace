@@ -7,40 +7,64 @@ const JobDetailsPage = () => {
   const [job, setJob] = useState(null);
   const [coverLetter, setCoverLetter] = useState("");
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchJob = async () => {
-      const { data } = await api.get(`/jobs/${id}`);
-      setJob(data);
+      setError("");
+      setLoading(true);
+      try {
+        const { data } = await api.get(`/jobs/${id}`);
+        setJob(data);
+      } catch (err) {
+        setError(err.response?.data?.message || "Could not load job details.");
+      } finally {
+        setLoading(false);
+      }
     };
     fetchJob();
   }, [id]);
 
   const handleApply = async (event) => {
     event.preventDefault();
+    setMessage("");
+    setError("");
     if (!user) {
       navigate("/auth");
       return;
     }
-    await api.post(`/applications/${id}`, { coverLetter });
-    setMessage("Application submitted successfully.");
-    setCoverLetter("");
+    try {
+      await api.post(`/applications/${id}`, { coverLetter });
+      setMessage("Application submitted successfully.");
+      setCoverLetter("");
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not submit application.");
+    }
   };
 
   const handleSave = async () => {
+    setMessage("");
+    setError("");
     if (!user) {
       navigate("/auth");
       return;
     }
-    const { data } = await api.put(`/jobs/${id}/save`);
-    updateUser({ savedJobs: data.savedJobs });
-    setMessage("Saved jobs updated.");
+    try {
+      const { data } = await api.put(`/jobs/${id}/save`);
+      updateUser({ savedJobs: data.savedJobs });
+      setMessage("Saved jobs updated.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not update saved jobs.");
+    }
   };
 
-  if (!job) return <p>Loading...</p>;
+  if (loading) return <p>Loading...</p>;
+  if (error && !job) return <p className="error">{error}</p>;
+  if (!job) return <p>Job not found.</p>;
 
   const canApply = user?.role === "job_seeker";
 
@@ -72,6 +96,7 @@ const JobDetailsPage = () => {
         </>
       )}
       {message && <p className="success">{message}</p>}
+      {error && <p className="error">{error}</p>}
     </section>
   );
 };

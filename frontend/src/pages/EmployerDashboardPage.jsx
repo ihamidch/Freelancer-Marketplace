@@ -6,6 +6,7 @@ const statusOptions = ["reviewing", "shortlisted", "rejected", "accepted"];
 const EmployerDashboardPage = () => {
   const [jobs, setJobs] = useState([]);
   const [applicants, setApplicants] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     title: "",
     company: "",
@@ -16,14 +17,23 @@ const EmployerDashboardPage = () => {
     employmentType: "contract",
   });
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const fetchDashboardData = async () => {
-    const [jobsResponse, applicantsResponse] = await Promise.all([
-      api.get("/jobs/dashboard/employer"),
-      api.get("/applications/employer/applicants"),
-    ]);
-    setJobs(jobsResponse.data);
-    setApplicants(applicantsResponse.data);
+    setError("");
+    setLoading(true);
+    try {
+      const [jobsResponse, applicantsResponse] = await Promise.all([
+        api.get("/jobs/dashboard/employer"),
+        api.get("/applications/employer/applicants"),
+      ]);
+      setJobs(jobsResponse.data);
+      setApplicants(applicantsResponse.data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not load dashboard data.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -33,27 +43,40 @@ const EmployerDashboardPage = () => {
 
   const handlePostJob = async (event) => {
     event.preventDefault();
-    await api.post("/jobs", {
-      ...form,
-      budget: Number(form.budget),
-      skills: form.skills.split(",").map((item) => item.trim()).filter(Boolean),
-    });
-    setMessage("Job posted successfully.");
-    setForm({
-      title: "",
-      company: "",
-      description: "",
-      location: "",
-      budget: "",
-      skills: "",
-      employmentType: "contract",
-    });
-    fetchDashboardData();
+    setMessage("");
+    setError("");
+    try {
+      await api.post("/jobs", {
+        ...form,
+        budget: Number(form.budget),
+        skills: form.skills.split(",").map((item) => item.trim()).filter(Boolean),
+      });
+      setMessage("Job posted successfully.");
+      setForm({
+        title: "",
+        company: "",
+        description: "",
+        location: "",
+        budget: "",
+        skills: "",
+        employmentType: "contract",
+      });
+      fetchDashboardData();
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not post job.");
+    }
   };
 
   const updateStatus = async (applicationId, status) => {
-    await api.put(`/applications/${applicationId}/status`, { status });
-    fetchDashboardData();
+    setMessage("");
+    setError("");
+    try {
+      await api.put(`/applications/${applicationId}/status`, { status });
+      setMessage("Application status updated.");
+      fetchDashboardData();
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not update application status.");
+    }
   };
 
   return (
@@ -108,25 +131,29 @@ const EmployerDashboardPage = () => {
         <button className="btn">Post Job</button>
       </form>
       {message && <p className="success">{message}</p>}
+      {error && <p className="error">{error}</p>}
+      {loading && <p>Loading dashboard...</p>}
 
       <section>
         <h3>Your Posted Jobs</h3>
         <div className="card-grid">
-          {jobs.map((job) => (
+          {!loading &&
+            jobs.map((job) => (
             <article className="card" key={job._id}>
               <h4>{job.title}</h4>
               <p>{job.location}</p>
               <p>${job.budget}</p>
             </article>
-          ))}
-          {!jobs.length && <p>No jobs posted yet.</p>}
+            ))}
+          {!loading && !jobs.length && !error && <p>No jobs posted yet.</p>}
         </div>
       </section>
 
       <section>
         <h3>Applicants</h3>
         <div className="card-grid">
-          {applicants.map((application) => (
+          {!loading &&
+            applicants.map((application) => (
             <article className="card" key={application._id}>
               <p>
                 <strong>{application.applicant?.name}</strong> applied for{" "}
@@ -146,8 +173,8 @@ const EmployerDashboardPage = () => {
                 ))}
               </select>
             </article>
-          ))}
-          {!applicants.length && <p>No applications yet.</p>}
+            ))}
+          {!loading && !applicants.length && !error && <p>No applications yet.</p>}
         </div>
       </section>
     </section>

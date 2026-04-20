@@ -2,9 +2,16 @@ import Application from "../models/Application.js";
 import Job from "../models/Job.js";
 import User from "../models/User.js";
 import sendEmail from "../utils/sendEmail.js";
+import mongoose from "mongoose";
+
+const allowedStatuses = ["reviewing", "shortlisted", "rejected", "accepted"];
 
 export const applyToJob = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.jobId)) {
+      return res.status(400).json({ message: "Invalid job id" });
+    }
+
     const { coverLetter } = req.body;
     const job = await Job.findById(req.params.jobId).populate("postedBy", "email name");
     if (!job) {
@@ -67,6 +74,14 @@ export const getApplicantsForEmployer = async (req, res) => {
 export const updateApplicationStatus = async (req, res) => {
   try {
     const { status } = req.body;
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid application status" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.applicationId)) {
+      return res.status(400).json({ message: "Invalid application id" });
+    }
+
     const application = await Application.findById(req.params.applicationId)
       .populate("job")
       .populate("applicant", "email name");

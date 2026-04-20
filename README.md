@@ -2,6 +2,12 @@
 
 Role-based freelance marketplace built with the MERN stack, organized as a simple monorepo (`frontend` + `backend`).
 
+## Live Demo
+
+- Frontend: `https://frontend-kappa-amber-29.vercel.app`
+- Backend API: `https://backend-pi-khaki-68.vercel.app`
+- GitHub: `https://github.com/ihamidch/Freelancer-Marketplace`
+
 ## Tech Stack
 
 - Frontend: React + Vite + React Router + Axios

@@ -1,16 +1,22 @@
 import Job from "../models/Job.js";
 import User from "../models/User.js";
+import mongoose from "mongoose";
 
 export const createJob = async (req, res) => {
   try {
     const { title, company, description, location, budget, skills, employmentType } = req.body;
+    const parsedBudget = Number(budget);
+
+    if (!title || !company || !description || !location || Number.isNaN(parsedBudget) || parsedBudget < 0) {
+      return res.status(400).json({ message: "Please provide valid job details and budget" });
+    }
 
     const job = await Job.create({
       title,
       company,
       description,
       location,
-      budget,
+      budget: parsedBudget,
       skills: Array.isArray(skills) ? skills : [],
       employmentType,
       postedBy: req.user._id,
@@ -44,7 +50,10 @@ export const getJobs = async (req, res) => {
     }
 
     if (minBudget) {
-      query.budget = { $gte: Number(minBudget) };
+      const parsedMinBudget = Number(minBudget);
+      if (!Number.isNaN(parsedMinBudget)) {
+        query.budget = { $gte: parsedMinBudget };
+      }
     }
 
     const jobs = await Job.find(query)
@@ -58,6 +67,10 @@ export const getJobs = async (req, res) => {
 
 export const getJobById = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid job id" });
+    }
+
     const job = await Job.findById(req.params.id).populate("postedBy", "name email");
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
@@ -80,6 +93,15 @@ export const getEmployerJobs = async (req, res) => {
 export const toggleSaveJob = async (req, res) => {
   try {
     const jobId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({ message: "Invalid job id" });
+    }
+
+    const jobExists = await Job.exists({ _id: jobId });
+    if (!jobExists) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
     const user = await User.findById(req.user._id);
 
     const alreadySaved = user.savedJobs.some((id) => id.toString() === jobId);
