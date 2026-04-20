@@ -1,6 +1,16 @@
 # Freelancer Marketplace (MERN)
 
-Full-stack freelance marketplace built with MERN where employers post jobs and job seekers apply, save jobs, upload resumes, and track application status.
+Full-stack **job and freelance hiring** platform built with MERN: employers post roles, job seekers apply, save jobs, upload resumes, and track application status.
+
+## What this project is (and is not)
+
+| This repo **is** | This repo **is not** |
+|------------------|----------------------|
+| A job portal / freelance hiring app | An ecommerce store |
+| Jobs, applications, resumes, employer & seeker dashboards | Products, cart, checkout, orders, inventory |
+| Separate codebase in its own repository | Part of or mixed with any ecommerce project |
+
+Keep this repository **only** for hiring and job workflows. Do not merge ecommerce features or shared storefront code here.
 
 ## Live Demo
 
