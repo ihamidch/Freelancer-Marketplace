@@ -5,8 +5,14 @@ import api from "../api/client";
 const AuthContext = createContext(null);
 
 const readStoredUser = () => {
-  const value = localStorage.getItem("user");
-  return value ? JSON.parse(value) : null;
+  try {
+    const value = localStorage.getItem("user");
+    return value ? JSON.parse(value) : null;
+  } catch {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    return null;
+  }
 };
 
 export const AuthProvider = ({ children }) => {
