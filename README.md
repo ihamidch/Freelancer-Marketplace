@@ -14,13 +14,15 @@ Keep this repository **only** for hiring and job workflows. Do not merge ecommer
 
 ## Live demo
 
-Vercel production deployments for this repo (roots **`frontend`** and **`backend`**):
+Official production URLs for **this repository only** (Vercel projects `freelancer-marketplace-web` + `freelancer-marketplace-api`, roots **`frontend`** / **`backend`**):
 
 - **App (Frontend):** [https://frontend-kappa-amber-29.vercel.app](https://frontend-kappa-amber-29.vercel.app)
 - **API (Backend):** [https://backend-pi-khaki-68.vercel.app](https://backend-pi-khaki-68.vercel.app)
 - **Repository:** [https://github.com/ihamidch/Freelancer-Marketplace](https://github.com/ihamidch/Freelancer-Marketplace)
 
-The frontend is built with `VITE_API_URL` pointing at the backend URL above. Redeploy details: `DEPLOYMENT.md`.
+The frontend build uses `VITE_API_URL` set to the backend URL above. Details: `DEPLOYMENT.md`.
+
+**Do not reuse these URLs in other repos** (for example ecommerce). Each app needs its own Vercel projects and URLs.
 
 ## Features
 
