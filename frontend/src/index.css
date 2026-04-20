@@ -46,6 +46,17 @@ a {
   font-size: 1.2rem;
   font-weight: 700;
   color: #f8fafc;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.8);
 }
 
 nav {
@@ -74,6 +85,14 @@ nav a.active {
   max-width: 1140px;
   margin: 1.4rem auto 2.2rem;
   padding: 0 1rem;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  flex-wrap: wrap;
 }
 
 .hero-card,
@@ -141,6 +160,37 @@ nav a.active {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 0.9rem;
+}
+
+.filter-card {
+  margin-top: 0.35rem;
+}
+
+.job-card {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: baseline;
+}
+
+.job-budget {
+  color: #7dd3fc;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.job-meta {
+  color: #cbd5e1;
+}
+
+.details-grid {
+  display: grid;
+  gap: 0.25rem;
 }
 
 .card h3,
@@ -212,6 +262,22 @@ textarea::placeholder {
   color: #cbd5e1;
 }
 
+.muted-inline {
+  color: #94a3b8;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  background: rgba(14, 116, 144, 0.23);
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  color: #dbeafe;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
 .success {
   color: #4ade80;
 }
@@ -229,5 +295,10 @@ textarea::placeholder {
 @media (max-width: 700px) {
   .navbar {
     padding: 0.9rem 1rem;
+  }
+
+  .job-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

@@ -69,18 +69,25 @@ const JobDetailsPage = () => {
   const canApply = user?.role === "job_seeker";
 
   return (
-    <section className="card">
-      <h2>{job.title}</h2>
-      <p>
-        <strong>{job.company}</strong> - {job.location}
-      </p>
-      <p>{job.description}</p>
-      <p>Employment type: {job.employmentType}</p>
-      <p>Budget: ${job.budget}</p>
-      <p>Skills: {job.skills?.join(", ") || "None listed"}</p>
+    <section className="stack">
+      <article className="card">
+        <div className="job-header">
+          <h2>{job.title}</h2>
+          <span className="job-budget">${job.budget}</span>
+        </div>
+        <p className="job-meta">
+          <strong>{job.company}</strong> • {job.location}
+        </p>
+        <p>{job.description}</p>
+        <div className="details-grid">
+          <p className="muted">Employment Type: {job.employmentType}</p>
+          <p className="muted">Skills: {job.skills?.join(", ") || "None listed"}</p>
+        </div>
+      </article>
 
       {canApply && (
-        <>
+        <article className="card">
+          <h3>Apply for this role</h3>
           <button className="btn btn-secondary" onClick={handleSave}>
             Save Job
           </button>
@@ -88,13 +95,14 @@ const JobDetailsPage = () => {
             <textarea
               value={coverLetter}
               onChange={(event) => setCoverLetter(event.target.value)}
-              placeholder="Write your cover letter"
-              rows={4}
+              placeholder="Write a concise cover letter highlighting relevant experience."
+              rows={5}
             />
             <button className="btn">Apply Now</button>
           </form>
-        </>
+        </article>
       )}
+
       {message && <p className="success">{message}</p>}
       {error && <p className="error">{error}</p>}
     </section>

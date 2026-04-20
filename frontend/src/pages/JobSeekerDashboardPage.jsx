@@ -64,9 +64,14 @@ const JobSeekerDashboardPage = () => {
 
   return (
     <section className="stack">
-      <h2>Job Seeker Dashboard</h2>
+      <div className="section-head">
+        <div>
+          <span className="pill">Job Seeker Workspace</span>
+          <h2>Track applications and manage your profile</h2>
+        </div>
+      </div>
 
-      <form className="stack-form" onSubmit={handleResumeUpload}>
+      <form className="stack-form card filter-card" onSubmit={handleResumeUpload}>
         <label>Upload Resume</label>
         <input type="file" accept=".pdf,.doc,.docx" onChange={(event) => setResume(event.target.files[0])} />
         <button className="btn">Upload Resume</button>
@@ -81,13 +86,13 @@ const JobSeekerDashboardPage = () => {
         <div className="card-grid">
           {!loading &&
             savedJobs.map((job) => (
-            <article className="card" key={job._id}>
-              <h4>{job.title}</h4>
-              <p>{job.company}</p>
-              <Link className="btn btn-secondary" to={`/jobs/${job._id}`}>
-                View
-              </Link>
-            </article>
+              <article className="card job-card" key={job._id}>
+                <h4>{job.title}</h4>
+                <p className="job-meta">{job.company}</p>
+                <Link className="btn btn-secondary" to={`/jobs/${job._id}`}>
+                  View
+                </Link>
+              </article>
             ))}
           {!loading && !savedJobs.length && !error && <p>You have no saved jobs yet.</p>}
         </div>
@@ -98,12 +103,12 @@ const JobSeekerDashboardPage = () => {
         <div className="card-grid">
           {!loading &&
             applications.map((application) => (
-            <article className="card" key={application._id}>
-              <h4>{application.job?.title}</h4>
-              <p>{application.job?.company}</p>
-              <p>Status: {application.status}</p>
-              <p>Applied on: {new Date(application.createdAt).toLocaleDateString()}</p>
-            </article>
+              <article className="card" key={application._id}>
+                <h4>{application.job?.title}</h4>
+                <p className="job-meta">{application.job?.company}</p>
+                <p>Status: <span className="status-pill">{application.status}</span></p>
+                <p className="muted">Applied on: {new Date(application.createdAt).toLocaleDateString()}</p>
+              </article>
             ))}
           {!loading && !applications.length && !error && <p>No applications submitted yet.</p>}
         </div>

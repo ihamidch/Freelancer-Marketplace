@@ -39,8 +39,15 @@ const JobListingsPage = () => {
 
   return (
     <section>
-      <h2>Job Listings</h2>
-      <form className="grid-form" onSubmit={handleSearch}>
+      <div className="section-head">
+        <div>
+          <span className="pill">Browse Opportunities</span>
+          <h2>Find jobs that match your skills</h2>
+        </div>
+        <p className="muted">Use filters to quickly narrow high-quality freelance roles.</p>
+      </div>
+
+      <form className="grid-form card filter-card" onSubmit={handleSearch}>
         <input
           placeholder="Search title/company"
           value={filters.search}
@@ -70,16 +77,18 @@ const JobListingsPage = () => {
       <div className="card-grid">
         {!loading &&
           jobs.map((job) => (
-          <article className="card" key={job._id}>
-            <h3>{job.title}</h3>
-            <p>{job.company}</p>
-            <p>{job.location}</p>
-            <p>Budget: ${job.budget}</p>
-            <p className="muted">{job.skills?.join(", ") || "No skills listed"}</p>
-            <Link className="btn btn-secondary" to={`/jobs/${job._id}`}>
-              View Details
-            </Link>
-          </article>
+            <article className="card job-card" key={job._id}>
+              <div className="job-header">
+                <h3>{job.title}</h3>
+                <span className="job-budget">${job.budget}</span>
+              </div>
+              <p className="job-meta">{job.company}</p>
+              <p className="job-meta">{job.location}</p>
+              <p className="muted">{job.skills?.join(" • ") || "No skills listed"}</p>
+              <Link className="btn btn-secondary" to={`/jobs/${job._id}`}>
+                View Details
+              </Link>
+            </article>
           ))}
         {!loading && !jobs.length && !error && <p>No jobs found.</p>}
       </div>

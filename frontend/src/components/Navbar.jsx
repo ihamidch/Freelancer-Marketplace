@@ -13,7 +13,7 @@ const Navbar = () => {
   return (
     <header className="navbar">
       <Link to="/" className="brand">
-        FreelanceHub
+        <span className="brand-dot"></span> FreelanceHub
       </Link>
       <nav>
         <NavLink to="/">Home</NavLink>
@@ -27,7 +27,9 @@ const Navbar = () => {
       <div className="nav-right">
         {user ? (
           <>
-            <span className="welcome">Hi, {user.name}</span>
+            <span className="welcome">
+              Hi, {user.name} <small className="muted-inline">({user.role === "employer" ? "Employer" : "Job Seeker"})</small>
+            </span>
             <button className="btn btn-secondary" onClick={handleLogout}>
               Logout
             </button>

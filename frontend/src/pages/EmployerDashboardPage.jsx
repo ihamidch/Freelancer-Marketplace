@@ -81,8 +81,14 @@ const EmployerDashboardPage = () => {
 
   return (
     <section className="stack">
-      <h2>Employer Dashboard</h2>
-      <form className="grid-form" onSubmit={handlePostJob}>
+      <div className="section-head">
+        <div>
+          <span className="pill">Employer Workspace</span>
+          <h2>Post jobs and manage applicants</h2>
+        </div>
+      </div>
+
+      <form className="grid-form card filter-card" onSubmit={handlePostJob}>
         <input
           placeholder="Job title"
           value={form.title}
@@ -139,11 +145,13 @@ const EmployerDashboardPage = () => {
         <div className="card-grid">
           {!loading &&
             jobs.map((job) => (
-            <article className="card" key={job._id}>
-              <h4>{job.title}</h4>
-              <p>{job.location}</p>
-              <p>${job.budget}</p>
-            </article>
+              <article className="card job-card" key={job._id}>
+                <div className="job-header">
+                  <h4>{job.title}</h4>
+                  <span className="job-budget">${job.budget}</span>
+                </div>
+                <p className="job-meta">{job.location}</p>
+              </article>
             ))}
           {!loading && !jobs.length && !error && <p>No jobs posted yet.</p>}
         </div>
@@ -154,14 +162,14 @@ const EmployerDashboardPage = () => {
         <div className="card-grid">
           {!loading &&
             applicants.map((application) => (
-            <article className="card" key={application._id}>
+              <article className="card" key={application._id}>
               <p>
                 <strong>{application.applicant?.name}</strong> applied for{" "}
                 <strong>{application.job?.title}</strong>
               </p>
-              <p>Email: {application.applicant?.email}</p>
-              <p>Resume: {application.applicant?.resumeUrl || "Not uploaded"}</p>
-              <p>Status: {application.status}</p>
+              <p className="muted">Email: {application.applicant?.email}</p>
+              <p className="muted">Resume: {application.applicant?.resumeUrl || "Not uploaded"}</p>
+              <p>Status: <span className="status-pill">{application.status}</span></p>
               <select
                 value={application.status}
                 onChange={(event) => updateStatus(application._id, event.target.value)}
