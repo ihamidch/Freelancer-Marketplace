@@ -4,9 +4,9 @@ Full-stack freelance marketplace built with MERN where employers post jobs and j
 
 ## Live Demo
 
-- App (Frontend): `https://frontend-kappa-amber-29.vercel.app`
-- API (Backend): `https://backend-pi-khaki-68.vercel.app`
-- Repository: `https://github.com/ihamidch/Freelancer-Marketplace`
+- App (Frontend): [https://frontend-kappa-amber-29.vercel.app](https://frontend-kappa-amber-29.vercel.app)
+- API (Backend): [https://backend-pi-khaki-68.vercel.app](https://backend-pi-khaki-68.vercel.app)
+- Repository: [https://github.com/ihamidch/Freelancer-Marketplace](https://github.com/ihamidch/Freelancer-Marketplace)
 
 ## Features
 
