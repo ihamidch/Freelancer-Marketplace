@@ -14,7 +14,8 @@ const router = express.Router();
 
 const storage = multer.diskStorage({
   destination(req, file, cb) {
-    cb(null, "uploads/");
+    const destinationPath = process.env.VERCEL ? "/tmp" : "uploads/";
+    cb(null, destinationPath);
   },
   filename(req, file, cb) {
     const ext = path.extname(file.originalname);

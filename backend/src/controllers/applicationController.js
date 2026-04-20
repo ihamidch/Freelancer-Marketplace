@@ -117,7 +117,9 @@ export const uploadResume = async (req, res) => {
     }
 
     const user = await User.findById(req.user._id);
-    user.resumeUrl = `/uploads/${req.file.filename}`;
+    user.resumeUrl = process.env.VERCEL
+      ? `Uploaded resume: ${req.file.originalname}`
+      : `/uploads/${req.file.filename}`;
     await user.save();
 
     return res.status(200).json({ resumeUrl: user.resumeUrl });

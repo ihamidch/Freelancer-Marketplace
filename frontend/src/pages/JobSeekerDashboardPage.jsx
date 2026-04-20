@@ -30,7 +30,7 @@ const JobSeekerDashboardPage = () => {
       );
       setSavedJobs(jobs.filter(Boolean));
     } catch (err) {
-      setError(err.response?.data?.message || "Could not load dashboard data.");
+      setError(err.response?.data?.error || err.response?.data?.message || "Could not load dashboard data.");
     } finally {
       setLoading(false);
     }
@@ -58,7 +58,7 @@ const JobSeekerDashboardPage = () => {
       updateUser({ resumeUrl: data.resumeUrl });
       setMessage("Resume uploaded successfully.");
     } catch (err) {
-      setError(err.response?.data?.message || "Could not upload resume.");
+      setError(err.response?.data?.error || err.response?.data?.message || "Could not upload resume.");
     }
   };
 
