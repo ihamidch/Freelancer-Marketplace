@@ -1,9 +1,11 @@
 # Deployment Guide (Vercel + Atlas)
 
-This project deploys as two Vercel projects:
+This project deploys as **two separate Vercel projects** from **this repository only**:
 
-- `frontend` (React client)
-- `backend` (Express API)
+- `frontend` (React client) — root directory **`frontend`**
+- `backend` (Express API) — root directory **`backend`**
+
+**Do not** attach this GitHub repo to an existing Vercel project that was created for ecommerce or another app. If an old URL shows the wrong site, create **new** Vercel projects (or remove the wrong Git connection and redeploy) so each URL serves only the job portal and API from this repo.
 
 ## 1) MongoDB Atlas setup
 

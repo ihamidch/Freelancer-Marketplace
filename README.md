@@ -12,11 +12,15 @@ Full-stack **job and freelance hiring** platform built with MERN: employers post
 
 Keep this repository **only** for hiring and job workflows. Do not merge ecommerce features or shared storefront code here.
 
-## Live Demo
+## Live demo
 
-- App (Frontend): [https://frontend-kappa-amber-29.vercel.app](https://frontend-kappa-amber-29.vercel.app)
-- API (Backend): [https://backend-pi-khaki-68.vercel.app](https://backend-pi-khaki-68.vercel.app)
-- Repository: [https://github.com/ihamidch/Freelancer-Marketplace](https://github.com/ihamidch/Freelancer-Marketplace)
+Vercel production deployments for this repo (roots **`frontend`** and **`backend`**):
+
+- **App (Frontend):** [https://frontend-kappa-amber-29.vercel.app](https://frontend-kappa-amber-29.vercel.app)
+- **API (Backend):** [https://backend-pi-khaki-68.vercel.app](https://backend-pi-khaki-68.vercel.app)
+- **Repository:** [https://github.com/ihamidch/Freelancer-Marketplace](https://github.com/ihamidch/Freelancer-Marketplace)
+
+The frontend is built with `VITE_API_URL` pointing at the backend URL above. Redeploy details: `DEPLOYMENT.md`.
 
 ## Features
 
