@@ -38,7 +38,7 @@ const JobListingsPage = () => {
   };
 
   return (
-    <section>
+    <section className="stack page-enter">
       <div className="section-head">
         <div>
           <span className="pill">Browse Opportunities</span>
@@ -72,22 +72,44 @@ const JobListingsPage = () => {
         <button className="btn">Search</button>
       </form>
       {error && <p className="error">{error}</p>}
-      {loading && <p>Loading jobs...</p>}
+      {loading && (
+        <div className="card-grid">
+          {[1, 2, 3].map((item) => (
+            <article className="card skeleton-card" key={item}>
+              <div className="skeleton-line w-70"></div>
+              <div className="skeleton-line w-45"></div>
+              <div className="skeleton-line w-90"></div>
+              <div className="skeleton-line w-35"></div>
+            </article>
+          ))}
+        </div>
+      )}
 
       <div className="card-grid">
         {!loading &&
           jobs.map((job) => (
-            <article className="card job-card" key={job._id}>
+            <article className="card job-card interactive-card" key={job._id}>
               <div className="job-header">
                 <h3>{job.title}</h3>
                 <span className="job-budget">${job.budget}</span>
               </div>
               <p className="job-meta">{job.company}</p>
               <p className="job-meta">{job.location}</p>
-              <p className="muted">{job.skills?.join(" • ") || "No skills listed"}</p>
-              <Link className="btn btn-secondary" to={`/jobs/${job._id}`}>
-                View Details
-              </Link>
+              <div className="tags-wrap">
+                {(job.skills?.length ? job.skills : ["No skills listed"]).map((skill) => (
+                  <span className="tag" key={`${job._id}-${skill}`}>
+                    {skill}
+                  </span>
+                ))}
+              </div>
+              <div className="actions">
+                <Link className="btn btn-secondary" to={`/jobs/${job._id}`}>
+                  View Details
+                </Link>
+                <Link className="btn" to={`/jobs/${job._id}`}>
+                  Apply Now
+                </Link>
+              </div>
             </article>
           ))}
         {!loading && !jobs.length && !error && <p>No jobs found.</p>}

@@ -54,14 +54,36 @@ const AuthPage = () => {
   };
 
   return (
-    <section className="auth-shell">
+    <section className="auth-shell page-enter">
       <article className="auth-intro card">
         <span className="pill">{mode === "login" ? "Welcome back" : "Create your account"}</span>
-        <h2>{mode === "login" ? "Login to continue your freelance journey" : "Join as employer or job seeker"}</h2>
+        <h2>
+          {mode === "login"
+            ? "Login to continue your freelance journey"
+            : "Join as employer or job seeker"}
+        </h2>
         <p>
           Manage projects, applications, and hiring in one platform with role-based dashboards and
           secure JWT authentication.
         </p>
+        <div className="flow-grid">
+          <article className="card flow-card">
+            <h3>Client Flow</h3>
+            <ol className="flow-list">
+              <li>Post job</li>
+              <li>View freelancers</li>
+              <li>Hire freelancer</li>
+            </ol>
+          </article>
+          <article className="card flow-card">
+            <h3>Freelancer Flow</h3>
+            <ol className="flow-list">
+              <li>Browse jobs</li>
+              <li>Apply for job</li>
+              <li>Get hired</li>
+            </ol>
+          </article>
+        </div>
       </article>
 
       <article className="auth-card">

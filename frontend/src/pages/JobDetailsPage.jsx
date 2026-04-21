@@ -62,15 +62,26 @@ const JobDetailsPage = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return (
+      <section className="stack page-enter">
+        <article className="card skeleton-card">
+          <div className="skeleton-line w-70"></div>
+          <div className="skeleton-line w-45"></div>
+          <div className="skeleton-line w-90"></div>
+          <div className="skeleton-line w-70"></div>
+        </article>
+      </section>
+    );
+  }
   if (error && !job) return <p className="error">{error}</p>;
   if (!job) return <p>Job not found.</p>;
 
   const canApply = user?.role === "job_seeker";
 
   return (
-    <section className="stack">
-      <article className="card">
+    <section className="stack page-enter">
+      <article className="card interactive-card">
         <div className="job-header">
           <h2>{job.title}</h2>
           <span className="job-budget">${job.budget}</span>
@@ -81,7 +92,13 @@ const JobDetailsPage = () => {
         <p>{job.description}</p>
         <div className="details-grid">
           <p className="muted">Employment Type: {job.employmentType}</p>
-          <p className="muted">Skills: {job.skills?.join(", ") || "None listed"}</p>
+          <div className="tags-wrap">
+            {(job.skills?.length ? job.skills : ["None listed"]).map((skill) => (
+              <span className="tag" key={`${job._id}-${skill}`}>
+                {skill}
+              </span>
+            ))}
+          </div>
         </div>
       </article>
 
