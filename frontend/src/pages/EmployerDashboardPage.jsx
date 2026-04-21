@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../api/client";
 
 const statusOptions = ["reviewing", "shortlisted", "rejected", "accepted"];
@@ -17,6 +18,21 @@ const getStatusClass = (status) => {
   return "status-pill";
 };
 
+const formatRelativeTime = (value) => {
+  const date = new Date(value);
+  const diffMinutes = Math.max(1, Math.floor((Date.now() - date.getTime()) / 60000));
+  if (diffMinutes < 60) return `${diffMinutes} min${diffMinutes === 1 ? "" : "s"} ago`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
+};
+
+const extractBudgetFromCoverLetter = (coverLetter = "") => {
+  const match = coverLetter.match(/\$([0-9]+(?:\.[0-9]+)?)/);
+  return match ? `$${Number(match[1]).toLocaleString()}` : "Not specified";
+};
+
 const EmployerDashboardPage = () => {
   const [jobs, setJobs] = useState([]);
   const [applicants, setApplicants] = useState([]);
@@ -32,6 +48,55 @@ const EmployerDashboardPage = () => {
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  const uniqueFreelancers = applicants.reduce((acc, application) => {
+    const id = application.applicant?._id;
+    if (!id || acc.some((item) => item._id === id)) {
+      return acc;
+    }
+    const matchedSkills =
+      jobs.find((job) => job.title === application.job?.title)?.skills?.slice(0, 4) || ["React", "Node.js"];
+    acc.push({
+      _id: id,
+      name: application.applicant?.name || "Freelancer",
+      email: application.applicant?.email || "Not available",
+      resumeUrl: application.applicant?.resumeUrl || "",
+      skills: matchedSkills,
+      bio: "Experienced freelancer focused on shipping quality features with fast communication.",
+    });
+    return acc;
+  }, []);
+
+  const statCards = [
+    {
+      title: "Total Users",
+      value: uniqueFreelancers.length + 1,
+      icon: "👥",
+      hint: "Freelancers + your team",
+    },
+    {
+      title: "Total Jobs",
+      value: jobs.length,
+      icon: "📌",
+      hint: "All posted opportunities",
+    },
+    {
+      title: "Total Applications",
+      value: applicants.length,
+      icon: "🗂️",
+      hint: "Across all job posts",
+    },
+    {
+      title: "Active Jobs",
+      value: jobs.filter((job) =>
+        applicants.some((application) => application.job?._id === job._id && application.status !== "accepted")
+      ).length,
+      icon: "⚡",
+      hint: "Open and in progress",
+    },
+  ];
+
+  const recentActivity = applicants.slice(0, 5);
 
   const fetchDashboardData = async () => {
     setError("");
@@ -115,22 +180,45 @@ const EmployerDashboardPage = () => {
         </div>
 
         <section className="stats-grid">
-          <article className="card feature-card">
-            <h4>Total Jobs</h4>
-            <h3>{jobs.length}</h3>
-          </article>
-          <article className="card feature-card">
-            <h4>Total Applicants</h4>
-            <h3>{applicants.length}</h3>
-          </article>
-          <article className="card feature-card">
-            <h4>Pending</h4>
-            <h3>{applicants.filter((item) => item.status === "reviewing").length}</h3>
-          </article>
-          <article className="card feature-card">
-            <h4>Completed</h4>
-            <h3>{applicants.filter((item) => item.status === "accepted").length}</h3>
-          </article>
+          {statCards.map((card) => (
+            <article className="card feature-card stat-card" key={card.title}>
+              <div className="stat-head">
+                <span className="stat-icon" aria-hidden="true">
+                  {card.icon}
+                </span>
+                <h4>{card.title}</h4>
+              </div>
+              <h3>{card.value}</h3>
+              <p className="muted">{card.hint}</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="card">
+          <div className="section-head">
+            <h3>Recent Activity</h3>
+            <span className="muted">Latest applications from freelancers</span>
+          </div>
+          {!loading && !recentActivity.length && <p className="muted">No recent activity yet.</p>}
+          <div className="activity-list">
+            {!loading &&
+              recentActivity.map((application) => (
+                <article className="activity-row" key={application._id}>
+                  <div>
+                    <strong>{application.applicant?.name}</strong>
+                    <p className="muted">
+                      Applied to <strong>{application.job?.title}</strong>
+                    </p>
+                  </div>
+                  <div className="activity-meta">
+                    <span className={getStatusClass(application.status)}>
+                      {statusLabel[application.status] || application.status}
+                    </span>
+                    <span className="muted">{formatRelativeTime(application.createdAt)}</span>
+                  </div>
+                </article>
+              ))}
+          </div>
         </section>
 
         <form className="grid-form card filter-card" onSubmit={handlePostJob}>
@@ -196,31 +284,91 @@ const EmployerDashboardPage = () => {
         )}
 
         <section>
-          <h3>Your Posted Jobs</h3>
-          <div className="card-grid">
-            {!loading &&
-              jobs.map((job) => (
-                <article className="card job-card interactive-card" key={job._id}>
-                  <div className="job-header">
-                    <h4>{job.title}</h4>
-                    <span className="job-budget">${job.budget}</span>
-                  </div>
-                  <p className="job-meta">{job.location}</p>
-                  <div className="tags-wrap">
-                    {(job.skills?.length ? job.skills : ["General"]).slice(0, 5).map((skill) => (
-                      <span className="tag" key={`${job._id}-${skill}`}>
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </article>
-              ))}
+          <h3>Jobs Table</h3>
+          <div className="table-card card">
             {!loading && !jobs.length && !error && <p>No jobs posted yet.</p>}
+            {!loading && Boolean(jobs.length) && (
+              <div className="table-wrap">
+                <table className="data-table jobs-table">
+                  <thead>
+                    <tr>
+                      <th>Job Title</th>
+                      <th>Budget</th>
+                      <th>Posted By</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {jobs.map((job) => {
+                      const hasAcceptedCandidate = applicants.some(
+                        (application) => application.job?._id === job._id && application.status === "accepted"
+                      );
+                      return (
+                        <tr key={job._id}>
+                          <td>
+                            <strong>{job.title}</strong>
+                            <div className="muted">{job.location}</div>
+                          </td>
+                          <td>${job.budget.toLocaleString()}</td>
+                          <td>You</td>
+                          <td>
+                            <span className={hasAcceptedCandidate ? "status-pill status-completed" : "status-pill status-active"}>
+                              {hasAcceptedCandidate ? "Closed" : "Open"}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="actions">
+                              <Link className="btn btn-secondary btn-xs" to={`/jobs/${job._id}`}>
+                                View
+                              </Link>
+                              <button className="btn btn-secondary btn-xs" type="button" disabled>
+                                Edit
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </section>
 
         <section>
-          <h3>Applicants</h3>
+          <h3>Freelancers</h3>
+          <div className="card-grid">
+            {!loading &&
+              uniqueFreelancers.map((freelancer) => (
+                <article className="card freelancer-card interactive-card" key={freelancer._id}>
+                  <div className="freelancer-head">
+                    <div className="avatar-circle">{freelancer.name?.slice(0, 1) || "F"}</div>
+                    <div>
+                      <h4>{freelancer.name}</h4>
+                      <p className="muted">{freelancer.email}</p>
+                    </div>
+                  </div>
+                  <p className="muted">{freelancer.bio}</p>
+                  <div className="tags-wrap">
+                    {freelancer.skills.map((skill) => (
+                      <span className="tag" key={`${freelancer._id}-${skill}`}>
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                  <button className="btn btn-secondary btn-xs" type="button">
+                    View Profile
+                  </button>
+                </article>
+              ))}
+            {!loading && !uniqueFreelancers.length && !error && <p>No freelancer profiles yet.</p>}
+          </div>
+        </section>
+
+        <section>
+          <h3>Applications Dashboard</h3>
           <div className="table-card card">
             {!loading && !applicants.length && !error && <p>No applications yet.</p>}
             {!loading && Boolean(applicants.length) && (
@@ -230,8 +378,9 @@ const EmployerDashboardPage = () => {
                     <tr>
                       <th>Freelancer</th>
                       <th>Job</th>
+                      <th>Proposed Budget</th>
                       <th>Status</th>
-                      <th>Update</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -245,22 +394,42 @@ const EmployerDashboardPage = () => {
                           <strong>{application.job?.title}</strong>
                           <div className="muted">{application.applicant?.resumeUrl || "Resume not uploaded"}</div>
                         </td>
+                        <td>{extractBudgetFromCoverLetter(application.coverLetter)}</td>
                         <td>
                           <span className={getStatusClass(application.status)}>
                             {statusLabel[application.status] || application.status}
                           </span>
                         </td>
                         <td>
-                          <select
-                            value={application.status}
-                            onChange={(event) => updateStatus(application._id, event.target.value)}
-                          >
-                            {statusOptions.map((status) => (
-                              <option key={status} value={status}>
-                                {status}
-                              </option>
-                            ))}
-                          </select>
+                          <div className="actions">
+                            <button
+                              className="btn btn-xs"
+                              type="button"
+                              disabled={application.status === "accepted"}
+                              onClick={() => updateStatus(application._id, "accepted")}
+                            >
+                              Accept
+                            </button>
+                            <button
+                              className="btn btn-secondary btn-xs"
+                              type="button"
+                              disabled={application.status === "rejected"}
+                              onClick={() => updateStatus(application._id, "rejected")}
+                            >
+                              Reject
+                            </button>
+                            <select
+                              className="compact-select"
+                              value={application.status}
+                              onChange={(event) => updateStatus(application._id, event.target.value)}
+                            >
+                              {statusOptions.map((status) => (
+                                <option key={status} value={status}>
+                                  {status}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </td>
                       </tr>
                     ))}

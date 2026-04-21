@@ -18,6 +18,21 @@ const getStatusClass = (status) => {
   return "status-pill";
 };
 
+const formatRelativeTime = (value) => {
+  const date = new Date(value);
+  const diffMinutes = Math.max(1, Math.floor((Date.now() - date.getTime()) / 60000));
+  if (diffMinutes < 60) return `${diffMinutes} min${diffMinutes === 1 ? "" : "s"} ago`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
+};
+
+const extractBudgetFromCoverLetter = (coverLetter = "") => {
+  const match = coverLetter.match(/\$([0-9]+(?:\.[0-9]+)?)/);
+  return match ? `$${Number(match[1]).toLocaleString()}` : "Not specified";
+};
+
 const JobSeekerDashboardPage = () => {
   const [applications, setApplications] = useState([]);
   const [savedJobs, setSavedJobs] = useState([]);
@@ -26,6 +41,35 @@ const JobSeekerDashboardPage = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const { user, updateUser } = useAuth();
+
+  const statCards = [
+    {
+      title: "Saved Jobs",
+      value: savedJobs.length,
+      icon: "📌",
+      hint: "Bookmarked opportunities",
+    },
+    {
+      title: "Total Applications",
+      value: applications.length,
+      icon: "🗂️",
+      hint: "Submitted proposals",
+    },
+    {
+      title: "Pending Reviews",
+      value: applications.filter((item) => item.status === "reviewing" || item.status === "applied").length,
+      icon: "⏳",
+      hint: "Awaiting client response",
+    },
+    {
+      title: "Accepted",
+      value: applications.filter((item) => item.status === "accepted").length,
+      icon: "✅",
+      hint: "Successful hires",
+    },
+  ];
+
+  const recentActivity = applications.slice(0, 5);
 
   const fetchData = async () => {
     setError("");
@@ -99,22 +143,43 @@ const JobSeekerDashboardPage = () => {
         </div>
 
         <section className="stats-grid">
-          <article className="card feature-card">
-            <h4>Saved Jobs</h4>
-            <h3>{savedJobs.length}</h3>
-          </article>
-          <article className="card feature-card">
-            <h4>Applications</h4>
-            <h3>{applications.length}</h3>
-          </article>
-          <article className="card feature-card">
-            <h4>Pending</h4>
-            <h3>{applications.filter((item) => item.status === "reviewing").length}</h3>
-          </article>
-          <article className="card feature-card">
-            <h4>Completed</h4>
-            <h3>{applications.filter((item) => item.status === "accepted").length}</h3>
-          </article>
+          {statCards.map((card) => (
+            <article className="card feature-card stat-card" key={card.title}>
+              <div className="stat-head">
+                <span className="stat-icon" aria-hidden="true">
+                  {card.icon}
+                </span>
+                <h4>{card.title}</h4>
+              </div>
+              <h3>{card.value}</h3>
+              <p className="muted">{card.hint}</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="card">
+          <div className="section-head">
+            <h3>Recent Activity</h3>
+            <span className="muted">Your latest application updates</span>
+          </div>
+          {!loading && !recentActivity.length && <p className="muted">No recent activity yet.</p>}
+          <div className="activity-list">
+            {!loading &&
+              recentActivity.map((application) => (
+                <article className="activity-row" key={application._id}>
+                  <div>
+                    <strong>{application.job?.title}</strong>
+                    <p className="muted">{application.job?.company}</p>
+                  </div>
+                  <div className="activity-meta">
+                    <span className={getStatusClass(application.status)}>
+                      {statusLabel[application.status] || application.status}
+                    </span>
+                    <span className="muted">{formatRelativeTime(application.createdAt)}</span>
+                  </div>
+                </article>
+              ))}
+          </div>
         </section>
 
         <form className="stack-form card filter-card" onSubmit={handleResumeUpload}>
@@ -138,39 +203,54 @@ const JobSeekerDashboardPage = () => {
         {user?.resumeUrl && <p className="muted">Current resume path: {user.resumeUrl}</p>}
 
         <section>
-          <h3>Saved Jobs</h3>
-          <div className="card-grid">
-            {!loading &&
-              savedJobs.map((job) => (
-                <article className="card job-card interactive-card" key={job._id}>
-                  <div className="job-header">
-                    <h4>{job.title}</h4>
-                    <span className="job-budget">${job.budget}</span>
-                  </div>
-                  <p className="job-meta">{job.company}</p>
-                  <div className="tags-wrap">
-                    {(job.skills?.length ? job.skills : ["General"]).slice(0, 5).map((skill) => (
-                      <span className="tag" key={`${job._id}-${skill}`}>
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="actions">
-                    <Link className="btn btn-secondary" to={`/jobs/${job._id}`}>
-                      View Details
-                    </Link>
-                    <Link className="btn" to={`/jobs/${job._id}`}>
-                      Apply Now
-                    </Link>
-                  </div>
-                </article>
-              ))}
+          <h3>Saved Jobs Table</h3>
+          <div className="table-card card">
             {!loading && !savedJobs.length && !error && <p>You have no saved jobs yet.</p>}
+            {!loading && Boolean(savedJobs.length) && (
+              <div className="table-wrap">
+                <table className="data-table jobs-table">
+                  <thead>
+                    <tr>
+                      <th>Job Title</th>
+                      <th>Budget</th>
+                      <th>Posted By</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {savedJobs.map((job) => (
+                      <tr key={job._id}>
+                        <td>
+                          <strong>{job.title}</strong>
+                          <div className="muted">{job.location}</div>
+                        </td>
+                        <td>${job.budget.toLocaleString()}</td>
+                        <td>{job.company}</td>
+                        <td>
+                          <span className="status-pill status-active">Open</span>
+                        </td>
+                        <td>
+                          <div className="actions">
+                            <Link className="btn btn-secondary btn-xs" to={`/jobs/${job._id}`}>
+                              View
+                            </Link>
+                            <Link className="btn btn-xs" to={`/jobs/${job._id}`}>
+                              Apply
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </section>
 
         <section>
-          <h3>Application Status Tracking</h3>
+          <h3>Applications Dashboard</h3>
           <div className="table-card card">
             {!loading && !applications.length && !error && <p>No applications submitted yet.</p>}
             {!loading && Boolean(applications.length) && (
@@ -178,8 +258,10 @@ const JobSeekerDashboardPage = () => {
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th>Role</th>
+                      <th>Freelancer</th>
+                      <th>Job title</th>
                       <th>Company</th>
+                      <th>Proposed Budget</th>
                       <th>Status</th>
                       <th>Applied On</th>
                     </tr>
@@ -188,9 +270,13 @@ const JobSeekerDashboardPage = () => {
                     {applications.map((application) => (
                       <tr key={application._id}>
                         <td>
+                          <strong>{user?.name || "You"}</strong>
+                        </td>
+                        <td>
                           <strong>{application.job?.title}</strong>
                         </td>
                         <td>{application.job?.company}</td>
+                        <td>{extractBudgetFromCoverLetter(application.coverLetter)}</td>
                         <td>
                           <span className={getStatusClass(application.status)}>
                             {statusLabel[application.status] || application.status}

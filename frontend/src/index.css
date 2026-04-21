@@ -245,6 +245,39 @@ a {
   margin-bottom: 0.3rem;
 }
 
+.stat-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -30px -30px auto;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.25), transparent 65%);
+}
+
+.stat-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(147, 197, 253, 0.35);
+}
+
 .feature-card h3 {
   font-size: 1.55rem;
 }
@@ -416,6 +449,14 @@ textarea::placeholder {
   color: #cbd5e1;
 }
 
+.data-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -481,6 +522,65 @@ textarea::placeholder {
 .muted {
   color: #94a3b8;
   font-size: 0.92rem;
+}
+
+.activity-list {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.activity-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.48);
+}
+
+.activity-row p {
+  margin: 0.2rem 0 0;
+}
+
+.activity-meta {
+  display: grid;
+  justify-items: end;
+  gap: 0.35rem;
+}
+
+.freelancer-card {
+  gap: 0.85rem;
+}
+
+.freelancer-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.avatar-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  font-weight: 700;
+  color: #e0f2fe;
+  background: linear-gradient(140deg, rgba(14, 165, 233, 0.35), rgba(37, 99, 235, 0.35));
+  border: 1px solid rgba(125, 211, 252, 0.4);
+}
+
+.btn-xs {
+  padding: 0.45rem 0.72rem;
+  font-size: 0.82rem;
+}
+
+.compact-select {
+  min-width: 110px;
 }
 
 .success {
@@ -559,5 +659,14 @@ textarea::placeholder {
   .job-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .activity-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .activity-meta {
+    justify-items: start;
   }
 }
