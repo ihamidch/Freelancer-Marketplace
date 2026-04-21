@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
@@ -34,7 +34,7 @@ const JobDetailsPage = () => {
     setMessage("");
     setError("");
     if (!user) {
-      navigate("/auth");
+      navigate(`/auth?next=${encodeURIComponent(`/jobs/${id}`)}`);
       return;
     }
     try {
@@ -50,7 +50,7 @@ const JobDetailsPage = () => {
     setMessage("");
     setError("");
     if (!user) {
-      navigate("/auth");
+      navigate(`/auth?next=${encodeURIComponent(`/jobs/${id}`)}`);
       return;
     }
     try {
@@ -77,7 +77,7 @@ const JobDetailsPage = () => {
   if (error && !job) return <p className="error">{error}</p>;
   if (!job) return <p>Job not found.</p>;
 
-  const canApply = user?.role === "job_seeker";
+  const isJobSeeker = user?.role === "job_seeker";
 
   return (
     <section className="stack page-enter">
@@ -102,23 +102,42 @@ const JobDetailsPage = () => {
         </div>
       </article>
 
-      {canApply && (
-        <article className="card">
-          <h3>Apply for this role</h3>
-          <button className="btn btn-secondary" onClick={handleSave}>
-            Save Job
-          </button>
-          <form className="stack-form" onSubmit={handleApply}>
-            <textarea
-              value={coverLetter}
-              onChange={(event) => setCoverLetter(event.target.value)}
-              placeholder="Write a concise cover letter highlighting relevant experience."
-              rows={5}
-            />
-            <button className="btn">Apply Now</button>
-          </form>
-        </article>
-      )}
+      <article className="card">
+        <h3>Apply for this role</h3>
+        {!user && (
+          <>
+            <p className="muted">
+              Login as a freelancer to submit your application and save this job.
+            </p>
+            <Link className="btn" to={`/auth?next=${encodeURIComponent(`/jobs/${id}`)}`}>
+              Login to Apply
+            </Link>
+          </>
+        )}
+
+        {user && !isJobSeeker && (
+          <p className="muted">
+            You are logged in as an employer. Switch to a job seeker account to apply.
+          </p>
+        )}
+
+        {isJobSeeker && (
+          <>
+            <button className="btn btn-secondary" onClick={handleSave}>
+              Save Job
+            </button>
+            <form className="stack-form" onSubmit={handleApply}>
+              <textarea
+                value={coverLetter}
+                onChange={(event) => setCoverLetter(event.target.value)}
+                placeholder="Write a concise cover letter highlighting relevant experience."
+                rows={5}
+              />
+              <button className="btn">Apply Now</button>
+            </form>
+          </>
+        )}
+      </article>
 
       {message && <p className="success">{message}</p>}
       {error && <p className="error">{error}</p>}

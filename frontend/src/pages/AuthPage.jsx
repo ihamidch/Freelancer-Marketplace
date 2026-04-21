@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const AuthPage = () => {
@@ -15,6 +15,7 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const { login, signup } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleChange = (event) => {
     setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
@@ -41,6 +42,13 @@ const AuthPage = () => {
               password: form.password,
               role: form.role,
             });
+
+      const nextPath = new URLSearchParams(location.search).get("next");
+      if (nextPath) {
+        navigate(nextPath);
+        return;
+      }
+
       if (payload.role === "employer") {
         navigate("/dashboard/employer");
       } else {
