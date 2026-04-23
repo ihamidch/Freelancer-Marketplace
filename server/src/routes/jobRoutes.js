@@ -1,0 +1,22 @@
+import express from "express";
+import {
+  closeJob,
+  createJob,
+  getEmployerJobs,
+  getJobById,
+  getJobs,
+  toggleSaveJob,
+} from "../controllers/jobController.js";
+import { authorizeRoles, protect } from "../middleware/authMiddleware.js";
+
+const router = express.Router();
+
+router.get("/", getJobs);
+router.get("/dashboard/employer", protect, authorizeRoles("employer"), getEmployerJobs);
+router.get("/dashboard/client", protect, authorizeRoles("client"), getEmployerJobs);
+router.post("/", protect, authorizeRoles("employer"), createJob);
+router.patch("/:id/close", protect, authorizeRoles("employer", "client"), closeJob);
+router.put("/:id/save", protect, authorizeRoles("job_seeker", "freelancer"), toggleSaveJob);
+router.get("/:id", getJobById);
+
+export default router;

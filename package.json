@@ -4,16 +4,17 @@
   "version": "1.0.0",
   "description": "Monorepo for MERN freelance marketplace",
   "workspaces": [
-    "frontend",
-    "backend"
+    "client",
+    "server"
   ],
   "scripts": {
     "install:all": "npm install --workspaces",
-    "dev:frontend": "npm run dev --workspace frontend",
-    "dev:backend": "npm run dev --workspace backend",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "build": "npm run build --workspace frontend",
-    "lint": "npm run lint --workspace frontend"
+    "dev:client": "npm run dev --workspace client",
+    "dev:server": "npm run dev --workspace server",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build": "npm run build --workspace client",
+    "lint": "npm run lint --workspace client",
+    "seed": "npm run seed --workspace server"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

@@ -1,9 +1,9 @@
-# Deployment Guide (Vercel + Atlas)
+# Deployment Guide (Vercel + Render + Atlas)
 
-This project deploys as **two separate Vercel projects** from **this repository only**:
+This project deploys as:
 
-- `frontend` (React client) — root directory **`frontend`**
-- `backend` (Express API) — root directory **`backend`**
+- `client` (React UI) on **Vercel** — root directory **`client`**
+- `server` (Express API) on **Render** — root directory **`server`**
 
 **Do not** attach this GitHub repo to an existing Vercel project that was created for ecommerce or another app. If an old URL shows the wrong site, create **new** Vercel projects (or remove the wrong Git connection and redeploy) so each URL serves only the job portal and API from this repo.
 
@@ -12,22 +12,25 @@ This project deploys as **two separate Vercel projects** from **this repository 
 1. Create an Atlas cluster.
 2. Create a DB user with read/write permissions.
 3. In Network Access, allow Vercel IPs (or `0.0.0.0/0` for quick start).
-4. Copy connection URI and place it in backend `MONGO_URI`.
+4. Copy connection URI and place it in server `MONGO_URI`.
 
-## 2) Backend deployment (Vercel)
+## 2) Server deployment (Render)
 
-Create a new Vercel project from this repository with:
+Option A (recommended): use `render.yaml` in the repository root.
 
-- **Root Directory:** `backend`
-- **Framework Preset:** Other
-- **Install Command:** `npm install`
-- **Build Command:** leave empty (or `echo "build step not required"`)
-- **Output Directory:** leave empty
+Option B (manual Render service settings):
+
+- **Root Directory:** `server`
+- **Runtime:** Node
+- **Build Command:** `npm install`
+- **Start Command:** `npm run start`
 
 Environment variables:
 
 - `MONGO_URI`
 - `JWT_SECRET`
+- `JWT_REFRESH_SECRET`
+- `CLIENT_URL` (set to your Vercel client URL)
 - `SMTP_HOST` (optional)
 - `SMTP_PORT` (optional)
 - `SMTP_USER` (optional)
@@ -36,15 +39,15 @@ Environment variables:
 
 After deployment:
 
-1. Open the backend URL (example: `https://your-api.vercel.app/`).
+1. Open the API URL (example: `https://your-api.onrender.com/`).
 2. Confirm it returns `Freelance marketplace API running`.
-3. Save this URL for frontend `VITE_API_URL`.
+3. Save this URL for client `VITE_API_URL`.
 
-## 3) Frontend deployment (Vercel)
+## 3) Client deployment (Vercel)
 
 Create a second Vercel project from the same repository with:
 
-- **Root Directory:** `frontend`
+- **Root Directory:** `client`
 - **Framework Preset:** Vite
 - **Install Command:** `npm install`
 - **Build Command:** `npm run build`
@@ -52,9 +55,9 @@ Create a second Vercel project from the same repository with:
 
 Environment variables:
 
-- `VITE_API_URL=https://your-api.vercel.app`
+- `VITE_API_URL=https://your-api.onrender.com`
 
-The included `frontend/vercel.json` handles React Router rewrites.
+The included `client/vercel.json` handles React Router rewrites.
 
 ## 4) Post-deploy checks
 

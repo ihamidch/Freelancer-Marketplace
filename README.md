@@ -1,61 +1,117 @@
-# Freelancer Marketplace (MERN)
+# Freelancer Marketplace
 
-Full-stack **job and freelance hiring** platform built with MERN: employers post roles, job seekers apply, save jobs, upload resumes, and track application status.
+Production-oriented MERN platform where clients post jobs and freelancers submit proposals, track hiring status, and collaborate through project workflows.
 
-## What this project is (and is not)
-
-| This repo **is** | This repo **is not** |
-|------------------|----------------------|
-| A job portal / freelance hiring app | An ecommerce store |
-| Jobs, applications, resumes, employer & seeker dashboards | Products, cart, checkout, orders, inventory |
-| Separate codebase in its own repository | Part of or mixed with any ecommerce project |
-
-Keep this repository **only** for hiring and job workflows. Do not merge ecommerce features or shared storefront code here.
-
-## Live demo
-
-Official production URLs for **this repository only** (Vercel projects `freelancer-marketplace-web` + `freelancer-marketplace-api`, roots **`frontend`** / **`backend`**):
-
-- **App (Frontend):** [https://frontend-kappa-amber-29.vercel.app](https://frontend-kappa-amber-29.vercel.app)
-- **API (Backend):** [https://backend-pi-khaki-68.vercel.app](https://backend-pi-khaki-68.vercel.app)
-- **Repository:** [https://github.com/ihamidch/Freelancer-Marketplace](https://github.com/ihamidch/Freelancer-Marketplace)
-
-The frontend build uses `VITE_API_URL` set to the backend URL above. Details: `DEPLOYMENT.md`.
-
-**Do not reuse these URLs in other repos** (for example ecommerce). Each app needs its own Vercel projects and URLs.
+> Portfolio positioning: designed to look and feel like a real SaaS hiring product built by a junior-to-mid level MERN developer.
 
 ## Features
 
-- Authentication with JWT
-- Role-based access (`employer`, `job_seeker`)
-- Employers can:
-  - Post jobs
-  - View applicants
-  - Update application status
-- Job seekers can:
-  - Browse and search jobs
-  - Save jobs
-  - Apply with cover letter
-  - Upload resume
-  - Track application status
-- Email notifications via Nodemailer
+- JWT authentication with refresh-token support
+- Role-based access (Client/Freelancer flow mapped to Employer/Job Seeker roles)
+- Job posting, proposal submission, and application status tracking
+- Saved jobs and resume upload support
+- REST messaging API for client-freelancer communication
+- Project lifecycle with simulated payment flow:
+  - `pending -> in-progress -> completed -> paid`
+- Search, filter, and pagination-ready job listing endpoint
+- Professional dashboard UI with stats, activity feed, tables, and responsive layout
 
 ## Tech Stack
 
 - Frontend: React, Vite, React Router, Axios
-- Backend: Node.js, Express, Mongoose, JWT, Multer, Nodemailer
-- Database: MongoDB Atlas
-- Deployment: Vercel (frontend + backend)
+- Backend: Node.js, Express, MongoDB, Mongoose
+- Auth/Security: JWT, bcryptjs, cookie-parser
+- File Uploads: Multer
+- Email: Nodemailer
+- Deployment:
+  - Frontend: Vercel
+  - Backend: Render
+  - Database: MongoDB Atlas
 
-## Repository Layout
+## Folder Structure
 
-```
+```text
 Freelancer Marketplace/
-├── frontend/          # React + Vite client
-├── backend/           # Express + MongoDB API
-├── DEPLOYMENT.md      # Vercel + Atlas deployment steps
-└── package.json       # Monorepo scripts
+├── client/
+│   ├── src/
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── context/
+│   │   └── pages/
+│   └── vercel.json
+├── server/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   └── utils/
+│   ├── seed.js
+│   └── vercel.json
+├── screenshots/
+├── render.yaml
+└── README.md
 ```
+
+## Installation
+
+```bash
+git clone <your-repo-url>
+cd "Freelancer Marketplace"
+npm install
+```
+
+Run both apps in development:
+
+```bash
+npm run dev
+```
+
+Run separately:
+
+```bash
+npm run dev:server
+npm run dev:client
+```
+
+## Environment Variables
+
+### Root `.env.example`
+
+```env
+MONGO_URI=
+JWT_SECRET=
+PORT=5000
+```
+
+### Server (`server/.env`)
+
+```env
+PORT=5000
+MONGO_URI=<mongodb-uri>
+JWT_SECRET=<jwt-secret>
+JWT_REFRESH_SECRET=<refresh-secret>
+CLIENT_URL=http://localhost:5173
+SMTP_HOST=<optional>
+SMTP_PORT=<optional>
+SMTP_USER=<optional>
+SMTP_PASS=<optional>
+SMTP_FROM=<optional>
+```
+
+### Client (`client/.env`)
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+## Scripts
+
+- `npm run dev` - run client and server concurrently
+- `npm run lint` - lint client
+- `npm run build` - build client
+- `npm run seed` - seed realistic demo data
 
 ## API Overview
 
@@ -64,66 +120,54 @@ Base path: `/api`
 - Auth
   - `POST /auth/register`
   - `POST /auth/login`
+  - `POST /auth/refresh`
+  - `POST /auth/logout`
   - `GET /auth/me`
 - Jobs
   - `GET /jobs`
   - `GET /jobs/:id`
-  - `POST /jobs` (employer)
-  - `GET /jobs/dashboard/employer` (employer)
-  - `PUT /jobs/:id/save` (job_seeker)
-- Applications
-  - `POST /applications/:jobId` (job_seeker)
-  - `GET /applications/me` (job_seeker)
-  - `GET /applications/employer/applicants` (employer)
-  - `PUT /applications/:applicationId/status` (employer)
-  - `POST /applications/resume/upload` (job_seeker)
+  - `POST /jobs`
+  - `PATCH /jobs/:id/close`
+  - `PUT /jobs/:id/save`
+- Proposals / Applications
+  - `POST /applications/:jobId`
+  - `GET /applications/me`
+  - `GET /applications/employer/applicants`
+  - `PUT /applications/:applicationId/status`
+- Messages
+  - `POST /messages`
+  - `GET /messages?jobId=<id>&participantId=<id>`
+- Projects
+  - `GET /projects`
+  - `PUT /projects/:projectId/status`
 
-## Environment Variables
+## Screenshots
 
-### Backend (`backend/.env`)
+Replace placeholder images in `/screenshots`:
 
-- `PORT=5000`
-- `MONGO_URI=<mongodb atlas uri>`
-- `JWT_SECRET=<strong random secret>`
-- `SMTP_HOST=<optional>`
-- `SMTP_PORT=<optional>`
-- `SMTP_USER=<optional>`
-- `SMTP_PASS=<optional>`
-- `SMTP_FROM=<optional>`
+- `screenshots/home-dashboard.png`
+- `screenshots/jobs-table.png`
+- `screenshots/auth-flow.png`
 
-### Frontend (`frontend/.env`)
+Markdown example:
 
-- `VITE_API_URL=http://localhost:5000` (or deployed backend URL)
-
-## Local Development
-
-Install and run both apps:
-
-```bash
-npm install
-npm run dev
+```md
+![Home Dashboard](./screenshots/home-dashboard.png)
 ```
 
-Useful scripts:
+## Live Demo
 
-- `npm run dev:backend`
-- `npm run dev:frontend`
-- `npm run lint`
-- `npm run build`
+- Frontend: `<add-vercel-url-here>`
+- Backend API: `<add-render-url-here>`
 
 ## Deployment
 
-Quick deploy summary:
+- Frontend deployment guide: Vercel (`client` root)
+- Backend deployment guide: Render (`server` root)
+- See: [`DEPLOYMENT.md`](./DEPLOYMENT.md)
 
-1. Deploy `backend` on Vercel (root directory: `backend`)
-2. Add backend envs (`MONGO_URI`, `JWT_SECRET`, optional SMTP)
-3. Deploy `frontend` on Vercel (root directory: `frontend`)
-4. Add `VITE_API_URL=<backend-url>`
-5. Redeploy frontend
+## Author
 
-Detailed steps are in `DEPLOYMENT.md`.
+**Abdul Hamid**
 
-## Notes
-
-- Resume uploads are local filesystem-based in development.
-- For production-grade persistence, use cloud storage (S3/Cloudinary).
+- GitHub: [ihamidch](https://github.com/ihamidch)

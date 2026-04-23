@@ -25,11 +25,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint frontend
+      - name: Lint client
         run: npm run lint
 
-      - name: Build frontend
+      - name: Build client
         run: npm run build
 
-      - name: Validate backend entry files
-        run: node --check backend/src/server.js && node --check backend/src/index.js
+      - name: Validate server entry files
+        run: node --check server/src/server.js && node --check server/src/index.js
